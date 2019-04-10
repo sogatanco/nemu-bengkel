@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_mobil:
                     mTextMessage.setText("Mobil");
                     return true;
-
+                case R.id.navigation_motor:
+                    mTextMessage.setText("Motor");
+                    return true;
                 case R.id.navigation_profil:
                     mTextMessage.setText("Motor");
                     return true;
