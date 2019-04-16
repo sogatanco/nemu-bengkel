@@ -1,5 +1,6 @@
 package site.team2dev.nemubengkel;
 
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,12 +9,51 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class HomeFragment extends Fragment {
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-    @Nullable
+public class HomeFragment extends Fragment implements OnMapReadyCallback {
+
+    GoogleMap mGoogleMap;
+    MapView mapView;
+    View mView;
+    LocationManager locationManager;
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.mobil_fragment, null);
+    public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
+        mView=inflater.inflate(R.layout.home_fragment, container, false);
+        return mView;
+    }
+
+    @Override
+    public void onViewCreated( View view,Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mapView=(MapView) mView.findViewById(R.id.peta);
+        if(mapView!=null){
+            mapView.onCreate(null);
+            mapView.onResume();
+            mapView.getMapAsync(this);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+//        MapsInitializer.initialize(getContext());
+        mGoogleMap=googleMap;
+//        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
+        LatLng sydney=new LatLng(-34, 151);
+        mGoogleMap.addMarker(new MarkerOptions().position(sydney).title("marker in sidney"));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10.2f));
 
     }
 }
