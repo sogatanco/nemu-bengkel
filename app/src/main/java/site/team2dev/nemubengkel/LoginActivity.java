@@ -31,10 +31,16 @@ public class LoginActivity extends AppCompatActivity {
     private static final String URL="http://nebeng.foways.com/api/login";
     private StringRequest stringRequest;
 
+    UserSessionManager session;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        session=new UserSessionManager(getApplicationContext());
+
+        Toast.makeText(getApplicationContext(), "User status: "+session.isUserLoggedIn(), Toast.LENGTH_LONG).show();
     }
 
     public void goRegister(View view) {
@@ -56,9 +62,17 @@ public class LoginActivity extends AppCompatActivity {
                     try {
                         JSONObject jsonObject=new JSONObject(response);
                         Toast.makeText(getApplicationContext(),jsonObject.getString("status"), Toast.LENGTH_LONG).show();
+
+                        session.createUserLoginSession(jsonObject.getString("status"), jsonObject.getString("token"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
+                    Intent intent=new Intent(getApplicationContext(), UtamaActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
                 }
             }, new Response.ErrorListener() {
                 @Override
