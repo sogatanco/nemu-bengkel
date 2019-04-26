@@ -1,16 +1,21 @@
 package site.team2dev.nemubengkel;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-
+    UserSessionManager session;
+    String menuAktif;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +25,33 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(this);
 
-        loadFragment(new HomeFragment());
+        session=new UserSessionManager(getApplicationContext());
+
+//        ambil data dari aktivity sebelumnya
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                menuAktif= null;
+            } else {
+                menuAktif = extras.getString("keys");
+            }
+        } else {
+            menuAktif= (String) savedInstanceState.getSerializable("keys");
+        }
+
+//        menu aktif
+        if(menuAktif!=null){
+            navigation.getMenu().findItem(R.id.navigation_profil).setChecked(true);
+            loadFragment(new ProfilFragment());
+        }else {
+            loadFragment(new HomeFragment());
+        }
+
+
+
+
     }
+
 
     private boolean loadFragment(Fragment fragment){
         if(fragment != null){
@@ -35,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
         return false;
     }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -54,10 +85,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 break;
 
             case R.id.navigation_profil:
-                fragment=new ProfilFragment();
+                if(this.session.isUserLoggedIn()){
+                    fragment=new ProfilFragment();
+                }else {
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
                 break;
 
         }
         return loadFragment(fragment);
+    }
+
+
+//    Profil Fragment
+    public void logout(View view) {
+        session.logoutUser();
     }
 }

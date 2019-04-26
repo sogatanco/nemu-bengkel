@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
     UserSessionManager session;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
 
         session=new UserSessionManager(getApplicationContext());
 
-        Toast.makeText(getApplicationContext(), "User status: "+session.isUserLoggedIn(), Toast.LENGTH_LONG).show();
     }
 
     public void goRegister(View view) {
@@ -61,18 +61,14 @@ public class LoginActivity extends AppCompatActivity {
                 public void onResponse(String response) {
                     try {
                         JSONObject jsonObject=new JSONObject(response);
-                        Toast.makeText(getApplicationContext(),jsonObject.getString("status"), Toast.LENGTH_LONG).show();
-
-                        session.createUserLoginSession(jsonObject.getString("status"), jsonObject.getString("token"));
+                        session.createUserLoginSession( jsonObject.getString("token"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    Intent intent=new Intent(getApplicationContext(), UtamaActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("keys","login");
                     startActivity(intent);
-                    finish();
                 }
             }, new Response.ErrorListener() {
                 @Override

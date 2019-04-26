@@ -16,13 +16,11 @@ public class UserSessionManager {
 
     int PRIVATE_MODE=0;
 
-private static final String PREFER_NAME="AndroidExamplePref";
+private static final String PREFER_NAME="Nebeng";
 
 private static final String IS_USER_LOGIN="IsUserLoggedIn";
 
-public static final String KEY_NAME="name";
-
-public static final String KEY_EMAIL="email";
+public static final String KEY_TOKEN="token";
 
 public UserSessionManager(Context context){
     this._context=context;
@@ -30,36 +28,18 @@ public UserSessionManager(Context context){
     editor=pref.edit();
 }
 
-public void createUserLoginSession(String name, String email){
+public void createUserLoginSession( String token){
     editor.putBoolean(IS_USER_LOGIN, true);
-    editor.putString(KEY_NAME, name);
-    editor.putString(KEY_EMAIL, email);
+    editor.putString(KEY_TOKEN, token);
     editor.commit();
 }
 
-public boolean checkLogin(){
-    if (!this.isUserLoggedIn()) {
-
-        Intent i=new Intent(_context, LoginActivity.class);
-
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        _context.startActivity(i);
-
-        return true;
-    }
-    return false;
-}
 
 public HashMap<String, String> getUserDetails(){
 
     HashMap<String, String> user=new HashMap<>();
 
-    user.put(KEY_NAME,pref.getString(KEY_NAME, null));
-
-    user.put(KEY_EMAIL, pref.getString(KEY_EMAIL, null));
+    user.put(KEY_TOKEN, pref.getString(KEY_TOKEN, null));
 
     return user;
 }
