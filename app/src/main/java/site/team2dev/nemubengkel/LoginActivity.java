@@ -26,12 +26,12 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText email, password;
-    private Button submit;
     private RequestQueue requestQueue;
-    private static final String URL="http://nebeng.foways.com/api/login";
+    private static String URL="";
     private StringRequest stringRequest;
 
     UserSessionManager session;
+    Fungsi fungsi=new Fungsi();
 
 
     @Override
@@ -40,6 +40,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         session=new UserSessionManager(getApplicationContext());
+        URL = getString(R.string.base_url) + "api/login";
+
+        email=(EditText) findViewById(R.id.email);
+        password=(EditText) findViewById(R.id.password);
+        requestQueue= Volley.newRequestQueue(this);
+
 
     }
 
@@ -49,18 +55,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void cekLogin(View view) {
-        email=(EditText) findViewById(R.id.email);
-        password=(EditText) findViewById(R.id.password);
-        requestQueue= Volley.newRequestQueue(this);
-        if(email.getText().toString().trim().length()==0 || password.getText().toString().trim().length()==0){
-            Toast.makeText(this,"Fill username and password:",Toast.LENGTH_LONG).show();
-        }
-        else{
+
+        EditText[] editTexts={email,password};
+
+        fungsi.emptyChecker(editTexts);
+
+        if(!fungsi.isHasError(editTexts)){
             stringRequest=new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
                         JSONObject jsonObject=new JSONObject(response);
+
                         session.createUserLoginSession( jsonObject.getString("token"));
                     } catch (JSONException e) {
                         e.printStackTrace();
