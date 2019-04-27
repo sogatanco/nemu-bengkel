@@ -9,10 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, PopupMenu.OnMenuItemClickListener {
 
     UserSessionManager session;
     String menuAktif;
@@ -99,7 +100,32 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
 
 //    Profil Fragment
-    public void logout(View view) {
-        session.logoutUser();
+
+
+    public void showMenu(View view) {
+        PopupMenu popupMenu=new PopupMenu(this, view);
+        popupMenu.setOnMenuItemClickListener(this);
+        popupMenu.inflate(R.menu.profil_menu);
+        popupMenu.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.editprofil:
+                Toast.makeText(this, "editprofil", Toast.LENGTH_LONG).show();
+                return true;
+
+            case R.id.addbengkel:
+                Toast.makeText(this, "addbengkel", Toast.LENGTH_LONG).show();
+                return true;
+
+            case R.id.logout:
+                session.logoutUser();
+                return true;
+
+            default:
+                return false;
+        }
     }
 }
