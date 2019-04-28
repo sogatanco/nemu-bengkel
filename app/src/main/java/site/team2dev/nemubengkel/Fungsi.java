@@ -2,8 +2,10 @@ package site.team2dev.nemubengkel;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.Button;
 import android.widget.EditText;
+
+import com.auth0.android.jwt.Claim;
+import com.auth0.android.jwt.JWT;
 
 public class Fungsi {
     private Boolean isEmpty(EditText et){
@@ -85,6 +87,15 @@ public class Fungsi {
         if(!pass1.getText().toString().equalsIgnoreCase(pass2.getText().toString())){
             pass2.setError("password not match");
         }
+    }
+
+
+//    getusername from token
+    public String getUsername(String token){
+        JWT jwt=new JWT(token);
+        Claim datausername=jwt.getClaim("username");
+        String username=datausername.asString();
+        return username;
     }
 
 }
