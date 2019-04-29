@@ -20,11 +20,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +39,7 @@ Fungsi fungsi=new Fungsi();
 private RequestQueue requestQueue;
 private StringRequest stringRequest;
 private TextView nama, gender;
+private ImageView profil;
 private String username;
 
 
@@ -60,12 +64,7 @@ private String username;
 
         nama=(TextView)getView().findViewById((R.id.nama));
         gender=(TextView)getView().findViewById(R.id.gender);
-
-
-        ImageView imageView=(ImageView)getView().findViewById(R.id.profile_image);
-        String url="https://awsimages.detik.net.id/community/media/visual/2015/06/22/b00ec3fa-dbfa-4b4f-8111-38c72f80842c_169.jpg";
-
-        Picasso.get().load(url).into(imageView);
+        profil=(ImageView)getView().findViewById(R.id.profile_image);
 
         getUserData();
 
@@ -88,7 +87,18 @@ private String username;
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("response",response.toString());
+                        try {
+                            JSONArray array=response.getJSONArray("data");
+                            JSONObject data=array.getJSONObject(0);
+                            nama.setText(data.getString("us_nama").toUpperCase());
+                            gender.setText(data.getString(("us_jk")));
+                            if(!data.getString("us_profil").equals("null")){
+                                Picasso.get().load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil")).into(profil);
+                            }
+//                            Log.d("response",data.getString("us_nama"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
 
 
