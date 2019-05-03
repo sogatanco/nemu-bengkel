@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
+
+
         Fragment fragment=null;
         switch (menuItem.getItemId()){
             case R.id.navigation_home:

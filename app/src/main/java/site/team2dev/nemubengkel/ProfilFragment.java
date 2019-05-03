@@ -4,50 +4,65 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
+import com.android.volley.Cache;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfilFragment extends Fragment {
 
 UserSessionManager session;
 Fungsi fungsi=new Fungsi();
-
 private RequestQueue requestQueue;
-private StringRequest stringRequest;
+
 private TextView nama, gender;
 private ImageView profil;
 private String username;
+private List<Bengkel> bengkels;
+private RecyclerView.Adapter listAdapter;
+
+
 
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.profil_fragment, null);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,  Bundle savedInstanceState) {
+        View view=inflater.inflate(R.layout.profil_fragment,container,false);
 
+        RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.list_dafar_bengkel);
+        bengkels=new ArrayList<>();
+        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
+
+        listAdapter=new ListAdapter(getActivity(),bengkels);
+        recyclerView.setAdapter(listAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+
+
+        return view;
 
 
     }
@@ -56,10 +71,9 @@ private String username;
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         session=new UserSessionManager(getActivity().getApplicationContext());
+
         username=fungsi.getUsername( session.getUserDetails().get(UserSessionManager.KEY_TOKEN));
-
         requestQueue= Volley.newRequestQueue(getActivity());
-
 
 
         nama=(TextView)getView().findViewById((R.id.nama));
@@ -67,15 +81,7 @@ private String username;
         profil=(ImageView)getView().findViewById(R.id.profile_image);
 
         getUserData();
-
-
-
-//        JWT jwt=new JWT( session.getUserDetails().get(UserSessionManager.KEY_TOKEN));
-//        Claim nama=jwt.getClaim("username");
-//        String parsedValue = nama.asString();
-
-//        Toast.makeText(getActivity(),fungsi.getUsername( session.getUserDetails().get(UserSessionManager.KEY_TOKEN)), Toast.LENGTH_LONG).show();
-
+        getDataBengkel();
 
 
 
@@ -90,8 +96,8 @@ private String username;
                         try {
                             JSONArray array=response.getJSONArray("data");
                             JSONObject data=array.getJSONObject(0);
-                            nama.setText(data.getString("us_nama").toUpperCase());
-                            gender.setText(data.getString(("us_jk")));
+                            nama.setText(fungsi.isNull(data.getString("us_nama")).toUpperCase());
+                            gender.setText(fungsi.isNull(data.getString("us_jk")).toUpperCase());
                             if(!data.getString("us_profil").equals("null")){
                                 Picasso.get().load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil")).into(profil);
                             }
@@ -111,6 +117,89 @@ private String username;
 
         requestQueue.add(getUserData);
     }
+
+    private void getDataBengkel(){
+        final String URL=getString(R.string.base_url)+"api/bengkel?token="+session.getUserDetails().get(UserSessionManager.KEY_TOKEN);
+        JsonObjectRequest getBengkel=new JsonObjectRequest(Request.Method.GET, URL, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray array=response.getJSONArray("data");
+                            for (int i=0;i<array.length();i++){
+                                JSONObject data=array.getJSONObject(i);
+                                Bengkel bengkel=new Bengkel();
+                                bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
+                                bengkel.setRating(data.getInt("bk_kategori"));
+                                bengkels.add(bengkel);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("eror", error.toString());
+            }
+        }){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+        requestQueue.add(getBengkel);
+
+    }
+
+
 
 
 }

@@ -98,4 +98,13 @@ public class Fungsi {
         return username;
     }
 
+
+//    is null
+    public String isNull(String string){
+        if(string.equals("null")){
+            return "";
+        }
+        return string;
+    }
+
 }
