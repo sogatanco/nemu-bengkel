@@ -107,4 +107,6 @@ public class Fungsi {
         return string;
     }
 
+
+
 }

@@ -23,6 +23,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -39,11 +41,12 @@ UserSessionManager session;
 Fungsi fungsi=new Fungsi();
 private RequestQueue requestQueue;
 
-private TextView nama, gender;
+private TextView nama, gender, jBengkel;
 private ImageView profil;
 private String username;
 private List<Bengkel> bengkels;
 private RecyclerView.Adapter listAdapter;
+private RecyclerView recyclerView;
 
 
 
@@ -53,13 +56,6 @@ private RecyclerView.Adapter listAdapter;
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,  Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.profil_fragment,container,false);
 
-        RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.list_dafar_bengkel);
-        bengkels=new ArrayList<>();
-        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
-
-        listAdapter=new ListAdapter(getActivity(),bengkels);
-        recyclerView.setAdapter(listAdapter);
-        recyclerView.setLayoutManager(layoutManager);
 
 
         return view;
@@ -75,12 +71,23 @@ private RecyclerView.Adapter listAdapter;
         username=fungsi.getUsername( session.getUserDetails().get(UserSessionManager.KEY_TOKEN));
         requestQueue= Volley.newRequestQueue(getActivity());
 
-
+// data profil
         nama=(TextView)getView().findViewById((R.id.nama));
         gender=(TextView)getView().findViewById(R.id.gender);
         profil=(ImageView)getView().findViewById(R.id.profile_image);
 
         getUserData();
+
+// list bengkel
+        jBengkel=(TextView)getView().findViewById(R.id.jBengkel);
+        recyclerView=(RecyclerView)view.findViewById(R.id.list_dafar_bengkel);
+        bengkels=new ArrayList<>();
+        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
+
+        listAdapter=new ListAdapter(getActivity(),bengkels);
+        recyclerView.setAdapter(listAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+
         getDataBengkel();
 
 
@@ -99,7 +106,14 @@ private RecyclerView.Adapter listAdapter;
                             nama.setText(fungsi.isNull(data.getString("us_nama")).toUpperCase());
                             gender.setText(fungsi.isNull(data.getString("us_jk")).toUpperCase());
                             if(!data.getString("us_profil").equals("null")){
-                                Picasso.get().load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil")).into(profil);
+                                Glide
+                                        .with(getView())
+                                        .load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil"))
+                                        .centerCrop()
+                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                        .into(profil);
+
+//                                Picasso.get().load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil")).into(profil);
                             }
 //                            Log.d("response",data.getString("us_nama"));
                         } catch (JSONException e) {
@@ -113,7 +127,57 @@ private RecyclerView.Adapter listAdapter;
             public void onErrorResponse(VolleyError error) {
                 Log.d("Error.Response", error.toString());
             }
-        });
+        })
+        {
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 1 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
 
         requestQueue.add(getUserData);
     }
@@ -126,11 +190,13 @@ private RecyclerView.Adapter listAdapter;
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray array=response.getJSONArray("data");
+                            jBengkel.setText("00"+array.length());
                             for (int i=0;i<array.length();i++){
                                 JSONObject data=array.getJSONObject(i);
                                 Bengkel bengkel=new Bengkel();
                                 bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
                                 bengkel.setRating(data.getInt("bk_kategori"));
+                                bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+data.getString("bk_foto"));
                                 bengkels.add(bengkel);
 
                             }
@@ -144,6 +210,7 @@ private RecyclerView.Adapter listAdapter;
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("eror", error.toString());
+                jBengkel.setText("000");
             }
         }){
             @Override
@@ -153,7 +220,7 @@ private RecyclerView.Adapter listAdapter;
                     if (cacheEntry == null) {
                         cacheEntry = new Cache.Entry();
                     }
-                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheHitButRefreshed = 1 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
                     final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
                     long now = System.currentTimeMillis();
                     final long softExpire = now + cacheHitButRefreshed;
