@@ -5,6 +5,9 @@ public class Bengkel {
     public String namaBengkel;
     public int rating;
     public String urlImage;
+    public int approved;
+    public int kategori;
+    public int idbengkel;
 
     public Bengkel(){
 
@@ -33,6 +36,7 @@ public class Bengkel {
         this.rating=rating;
     }
 
+
     public String gerUrlImage(){
         return urlImage;
     }
@@ -42,6 +46,30 @@ public class Bengkel {
     }
 
 
+    public int getApproved(){
+        return approved;
+    }
 
+    public void setApproved(int approved){
+        this.approved=approved;
+    }
+
+
+    public int getKategori(){
+        return kategori;
+    }
+
+    public void setKategori(int kategori){
+        this.kategori=kategori;
+    }
+
+
+    public int getIdbengkel(){
+        return idbengkel;
+    }
+
+    public void setIdbengkel(int idbengkel){
+        this.idbengkel=idbengkel;
+    }
 
 }

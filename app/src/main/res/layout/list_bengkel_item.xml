@@ -8,6 +8,8 @@
     android:orientation="vertical"
     android:padding="5dp">
 
+
+
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -25,34 +27,67 @@
 
             <TextView
                 android:id="@+id/main_nama"
-                android:layout_toRightOf="@id/main_gambar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="Title"
-                android:textSize="18sp" />
-
-
-            <TextView
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_toRightOf="@id/main_gambar"
-                android:id="@+id/main_kategori"
-                android:layout_width="169dp"
-                android:layout_marginLeft="5dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/main_nama"
-                android:layout_marginTop="0dp"
-                android:text="Rating" />
+                android:text="Title"
+                android:textAllCaps="false"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/main_approve"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentBottom="true"
-                app:srcCompat="@android:drawable/ic_menu_recent_history" />
+                android:layout_alignParentTop="true"
+                />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/main_kategori"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_directions_car_red_24dp"
+                app:civ_border_color="#ffffff"
+                app:civ_border_width="3dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="90dp"
+                android:layout_marginTop="80dp"
+                app:civ_circle_background_color="#ffffff"/>
+
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:rating="2.8"
+                android:layout_toRightOf="@id/main_gambar"
+                android:layout_below="@id/main_nama"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                />
+
+            <TextView
+                android:id="@+id/julasan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ratingBar"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/main_gambar"
+                android:text="24 ulasan"
+                android:textSize="10sp" />
+
+
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
 </LinearLayout>
+

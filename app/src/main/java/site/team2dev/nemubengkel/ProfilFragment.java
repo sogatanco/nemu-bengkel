@@ -25,7 +25,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,13 +81,14 @@ private RecyclerView recyclerView;
         jBengkel=(TextView)getView().findViewById(R.id.jBengkel);
         recyclerView=(RecyclerView)view.findViewById(R.id.list_dafar_bengkel);
         bengkels=new ArrayList<>();
+        getDataBengkel();
         RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
 
         listAdapter=new ListAdapter(getActivity(),bengkels);
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(layoutManager);
 
-        getDataBengkel();
+
 
 
 
@@ -197,6 +197,9 @@ private RecyclerView recyclerView;
                                 bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
                                 bengkel.setRating(data.getInt("bk_kategori"));
                                 bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+data.getString("bk_foto"));
+                                bengkel.setApproved(data.getInt("bk_approved"));
+                                bengkel.setKategori(data.getInt("bk_kategori"));
+                                bengkel.setIdbengkel(data.getInt("bk_id"));
                                 bengkels.add(bengkel);
 
                             }

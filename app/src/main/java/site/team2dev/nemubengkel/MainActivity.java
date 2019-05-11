@@ -115,7 +115,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()){
             case R.id.editprofil:
-                Toast.makeText(this, "editprofil", Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(MainActivity.this, EditProfil.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
 
             case R.id.addbengkel:

@@ -7,7 +7,6 @@
     android:background="@drawable/backgroundprofil">
 
 
-
     <View
         android:id="@+id/view"
         android:layout_width="305dp"
@@ -19,10 +18,9 @@
         android:background="@drawable/backgruondradius"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.244" />
+        app:layout_constraintVertical_bias="0.221" />
 
     <ImageView
         android:id="@+id/profilmenu"
@@ -100,7 +98,7 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"
         android:layout_width="86dp"
-        android:layout_height="82dp"
+        android:layout_height="86dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -144,9 +142,10 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
+
+
 
 </android.support.constraint.ConstraintLayout>
