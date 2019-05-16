@@ -52,7 +52,6 @@ public class DetailBengkel extends AppCompatActivity {
         Glide
                 .with(this)
                 .load(i.getStringExtra("urlImage"))
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .centerCrop()
                 .into(imageView);
 

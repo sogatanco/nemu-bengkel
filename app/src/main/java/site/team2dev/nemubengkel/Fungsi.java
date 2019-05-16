@@ -1,11 +1,20 @@
 package site.team2dev.nemubengkel;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
+
+import java.io.ByteArrayOutputStream;
+
+import static android.provider.Settings.System.getString;
 
 public class Fungsi {
     private Boolean isEmpty(EditText et){
@@ -107,6 +116,60 @@ public class Fungsi {
         return string;
     }
 
+//    set JK
+    public int setJk(String jk){
+
+
+       if(jk.equals("male")){
+            return 1;
+        }
+        else if(jk.equals("female")){
+            return 2;
+        }
+        return 0;
+    }
+
+//    bitmapToString
+    public String imageToSting(Bitmap bitmap){
+        ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
+        byte[] imageBytes=byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(imageBytes, Base64.DEFAULT);
+    }
+
+//    imageviewToBitmap
+    public Bitmap imageView2Bitmap(ImageView view){
+        Bitmap bitmap = ((BitmapDrawable)view.getDrawable()).getBitmap();
+        return bitmap;
+    }
+
+
+
+//    is JK null
+    public String isJKNull(String jk){
+        jk=jk.toLowerCase();
+        if(jk.equals("male")|| jk.equals("female")){
+            return jk;
+        }
+        return "";
+    }
+
+//    is imgebengkel null
+    public String isImgBengkelNull(String s){
+        if(s.equals("null")){
+            return "bengkel_null.png";
+        }
+
+          return s;
+    }
+
+//    is IMGProfil null
+    public String isImgProfilNull(String s){
+        if(s.equals("null")){
+            return "profil_null.png";
+        }
+        return s;
+    }
 
 
 }

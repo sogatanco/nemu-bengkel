@@ -2,6 +2,8 @@ package site.team2dev.nemubengkel;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -71,8 +73,8 @@ public class ListAdapter extends RecyclerView.Adapter {
             Glide
                     .with(context)
                     .load(bengkel.gerUrlImage())
-                    .centerCrop()
                     .override(200,180)
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(mgambar);
 

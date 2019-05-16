@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ededed"
-    tools:context=".EditProfil">
+    tools:context=".AddBengkel">
     <android.support.v7.widget.Toolbar
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" Edit Profil" />
+            android:text="Tambah" />
 
         <TextView
             android:id="@+id/toolbar_save"
@@ -42,7 +42,7 @@
             android:layout_marginRight="10dp"
             android:fontFamily="sans-serif"
             android:text="Simpan"
-            android:onClick="simpanEdit"
+            android:onClick="addBengkel"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp" />
@@ -56,282 +56,240 @@
             android:layout_height="wrap_content"
             android:focusableInTouchMode="true">
 
-            <View
-                android:id="@+id/view3"
-                android:layout_width="match_parent"
-                android:layout_height="106dp"
-                android:background="@color/colorPrimary"/>
-
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/photo"
-                android:layout_width="86dp"
-                android:layout_height="86dp"
-                app:civ_border_color="#ffffff"
-                app:civ_border_width="2dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginTop="60dp"/>
-
-            <View
-                android:id="@+id/divide_atas"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?android:attr/listDivider"
-                android:layout_marginTop="20dp"
-                android:layout_below="@+id/photo"/>
-            <!--email-->
-
-            <TextView
-                android:id="@+id/tv_email"
+                android:layout_height="180dp" />
+            <ImageView
+                android:id="@+id/addphoto"
+                android:onClick="addPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/divide_atas"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="65dp"
+                android:src="@drawable/ic_center_focus_weak_black_50dp" />
+
+            <!--nama-->
+
+
+            <EditText
+                android:id="@+id/et_bengkel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/photo"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="13dp"
-                android:fontFamily="sans-serif"
-                android:text="Email"
-                android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/et_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_atas"
-                android:layout_marginLeft="150dp"
-                android:layout_marginTop="14dp"
-                android:text="wahyudi@gmail.com"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="30dp"
+                android:background="@null"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:hint="Nama Bengkel"
+                android:textColor="#707070"
                 android:textSize="15sp" />
-            <!--end email-->
+
+            <!--end nama-->
 
             <View
                 android:id="@+id/divide_email"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/tv_email"
+                android:layout_below="@+id/et_bengkel"
                 android:layout_marginTop="13dp"
                 android:background="?android:attr/listDivider"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"/>
-            <!--password-->
-            <TextView
-                android:id="@+id/tv_pass"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_email"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="13dp"
-                android:fontFamily="sans-serif"
-                android:text="Password"
-                android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/et_pass"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_email"
-                android:layout_marginLeft="150dp"
-                android:layout_marginTop="14dp"
-                android:onClick="changePass"
-                android:text="* * * * * * * * * *"
-                android:textSize="15sp" />
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
-                android:layout_below="@id/divide_email"
-                android:layout_marginTop="14dp"
-                android:onClick="changePass"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="30dp"
-                />
-            <!--endpassword-->
-            <View
-                android:id="@+id/divide_pass"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tv_pass"
-                android:layout_marginTop="13dp"
-                android:background="?android:attr/listDivider"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"/>
-            <!--namalengkap-->
-            <TextView
-                android:id="@+id/tv_nama"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_pass"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="13dp"
-                android:fontFamily="sans-serif"
-                android:text="Full Name"
-                android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
+            <!--telpn-->
 
             <EditText
-                android:id="@+id/et_nama"
+                android:id="@+id/et_tlpon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/divide_pass"
-                android:layout_marginLeft="150dp"
+                android:layout_below="@id/divide_email"
+                android:layout_marginLeft="30dp"
                 android:layout_marginTop="14dp"
                 android:layout_marginRight="30dp"
                 android:background="@null"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:hint="Your Name"
+                android:hint="Nomor Telepon"
                 android:textColor="#707070"
                 android:textSize="15sp" />
-            <!--end nama lengkap-->
+
+            <!--end Telpon-->
+
             <View
-                android:id="@+id/divide_nama"
+                android:id="@+id/divide_telpon"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/tv_nama"
+                android:layout_below="@+id/et_tlpon"
                 android:layout_marginTop="13dp"
                 android:background="?android:attr/listDivider"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"/>
 
-            <!--jenis kelamin-->
-            <TextView
-                android:id="@+id/tv_jk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_nama"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="13dp"
-                android:fontFamily="sans-serif"
-                android:text="Gender"
-                android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
-
+            <!--kategori-->
             <Spinner
-                android:id="@+id/et_jk"
+                android:id="@+id/et_kategori"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/divide_nama"
-                android:layout_marginLeft="150dp"
+                android:layout_below="@id/divide_telpon"
+                android:layout_marginLeft="30dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="30dp"
                 android:popupBackground="#ededed" />
-            <!--end jenis kelamin-->
+            <!--end kategori-->
 
             <View
-                android:id="@+id/divide_jk"
+                android:id="@+id/divide_kategori"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/tv_jk"
+                android:layout_below="@+id/et_kategori"
                 android:layout_marginTop="13dp"
                 android:background="?android:attr/listDivider"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"/>
 
-            <!--pekerjaan-->
+            <!--descripsi-->
             <TextView
-                android:id="@+id/tv_job"
+                android:id="@+id/tv_deskripsi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/divide_jk"
+                android:layout_below="@id/divide_kategori"
                 android:layout_marginLeft="30dp"
                 android:layout_marginTop="13dp"
                 android:fontFamily="sans-serif"
-                android:text="Job"
+                android:text="Descripsi"
                 android:textColor="@color/common_google_signin_btn_text_dark_focused"
                 android:textSize="18sp" />
 
-            <EditText
-                android:id="@+id/et_job"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_jk"
-                android:layout_marginLeft="150dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginRight="30dp"
-                android:background="@null"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:hint="Your Job"
-                android:textColor="#707070"
-                android:textSize="15sp" />
-            <!--end perkerjaan-->
-
-            <View
-                android:id="@+id/divide_job"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tv_job"
-                android:layout_marginTop="13dp"
-                android:background="?android:attr/listDivider"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"/>
-
-
-            <TextView
-                android:id="@+id/tv_hp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_job"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="13dp"
-                android:fontFamily="sans-serif"
-                android:text="Phone"
-                android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
-
-            <EditText
-                android:id="@+id/et_hp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_job"
-                android:layout_marginLeft="150dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginRight="30dp"
-                android:background="@null"
-                android:ems="10"
-                android:inputType="phone"
-                android:hint="Phone Number"
-                android:textColor="#707070"
-                android:textSize="15sp" />
-            <!--end perkerjaan-->
-
-            <View
-                android:id="@+id/divide_hp"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/tv_hp"
-                android:layout_marginTop="13dp"
-                android:background="?android:attr/listDivider"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"/>
-
-            <TextView
-                android:id="@+id/delete_akun"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/divide_hp"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="30dp"
-                android:fontFamily="sans-serif"
-                android:text="Delete Account"
-                android:onClick="sampohAkun"
-                android:textColor="@color/colorPrimary"
-                android:textSize="18sp" />
 
             <ImageView
-                android:id="@+id/imageView3"
+                android:id="@+id/go_deskripsi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_add_a_photo_black_24dp"
-                tools:ignore="VectorDrawableCompat"
-                android:layout_marginLeft="80dp"
-                android:layout_marginTop="90dp"
-                android:onClick="uploadImage"/>
+                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:layout_below="@id/divide_kategori"
+                android:layout_marginTop="14dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                />
+            <!--enddeskripsi-->
+            <View
+                android:id="@+id/divide_des"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/tv_deskripsi"
+                android:layout_marginTop="13dp"
+                android:background="?android:attr/listDivider"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"/>
+
+            <!--layanan-->
+            <TextView
+                android:id="@+id/tv_layanan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/divide_des"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="13dp"
+                android:fontFamily="sans-serif"
+                android:text="Layanan"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="18sp" />
+
+
+            <ImageView
+                android:id="@+id/go_layanan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:layout_below="@id/divide_des"
+                android:layout_marginTop="14dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                />
+            <!--endlayanan-->
+            <View
+                android:id="@+id/divide_layanan"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/tv_layanan"
+                android:layout_marginTop="13dp"
+                android:background="?android:attr/listDivider"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"/>
+
+            <!--time-->
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/divide_layanan"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="13dp"
+                android:fontFamily="sans-serif"
+                android:text="Available Time"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="18sp" />
+
+
+            <ImageView
+                android:id="@+id/go_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:layout_below="@id/divide_layanan"
+                android:layout_marginTop="14dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                />
+            <!--endttime-->
+            <View
+                android:id="@+id/divide_time"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/tv_time"
+                android:layout_marginTop="13dp"
+                android:background="?android:attr/listDivider"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"/>
+
+            <!--lokasi-->
+            <TextView
+                android:id="@+id/tv_lokasi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/divide_time"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="13dp"
+                android:fontFamily="sans-serif"
+                android:text="Lokasi"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="18sp" />
+
+
+            <ImageView
+                android:id="@+id/go_lokasi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:layout_below="@id/divide_time"
+                android:layout_marginTop="14dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                />
+            <!--endlayanan-->
+            <View
+                android:id="@+id/divide_lokasi"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/tv_lokasi"
+                android:layout_marginTop="13dp"
+                android:background="?android:attr/listDivider"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"/>
+
 
 
         </RelativeLayout>

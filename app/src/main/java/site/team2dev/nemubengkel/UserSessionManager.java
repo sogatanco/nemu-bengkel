@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.bumptech.glide.Glide;
+
 import java.util.HashMap;
 
 public class UserSessionManager {
@@ -49,9 +51,8 @@ public void logoutUser(){
     editor.commit();
 
     Intent i=new Intent(_context, LoginActivity.class);
-    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     _context.startActivity(i);
+
 }
 
     public boolean isUserLoggedIn() {

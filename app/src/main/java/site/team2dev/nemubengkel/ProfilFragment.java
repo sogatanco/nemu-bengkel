@@ -25,6 +25,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,17 +106,14 @@ private RecyclerView recyclerView;
                             JSONObject data=array.getJSONObject(0);
                             nama.setText(fungsi.isNull(data.getString("us_nama")).toUpperCase());
                             gender.setText(fungsi.isNull(data.getString("us_jk")).toUpperCase());
-                            if(!data.getString("us_profil").equals("null")){
                                 Glide
                                         .with(getView())
-                                        .load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil"))
+                                        .load(getString(R.string.base_url)+"asset/images/"+fungsi.isImgProfilNull(data.getString("us_profil")))
                                         .centerCrop()
                                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         .into(profil);
 
-//                                Picasso.get().load(getString(R.string.base_url)+"asset/images/"+data.getString("us_profil")).into(profil);
-                            }
-//                            Log.d("response",data.getString("us_nama"));
+//
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -136,7 +134,7 @@ private RecyclerView recyclerView;
                     if (cacheEntry == null) {
                         cacheEntry = new Cache.Entry();
                     }
-                    final long cacheHitButRefreshed = 1 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheHitButRefreshed = 1 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
                     final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
                     long now = System.currentTimeMillis();
                     final long softExpire = now + cacheHitButRefreshed;
@@ -190,19 +188,24 @@ private RecyclerView recyclerView;
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray array=response.getJSONArray("data");
-                            jBengkel.setText("00"+array.length());
+                            if(bengkels!=null){
+                                bengkels.clear();
+                            }
                             for (int i=0;i<array.length();i++){
                                 JSONObject data=array.getJSONObject(i);
                                 Bengkel bengkel=new Bengkel();
                                 bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
                                 bengkel.setRating(data.getInt("bk_kategori"));
-                                bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+data.getString("bk_foto"));
+
+                                bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+fungsi.isImgBengkelNull(data.getString("bk_foto")));
+
+
                                 bengkel.setApproved(data.getInt("bk_approved"));
                                 bengkel.setKategori(data.getInt("bk_kategori"));
                                 bengkel.setIdbengkel(data.getInt("bk_id"));
                                 bengkels.add(bengkel);
-
                             }
+                            jBengkel.setText("00"+bengkels.size());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -213,7 +216,6 @@ private RecyclerView recyclerView;
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("eror", error.toString());
-                jBengkel.setText("000");
             }
         }){
             @Override

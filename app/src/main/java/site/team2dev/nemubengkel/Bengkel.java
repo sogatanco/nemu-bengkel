@@ -8,6 +8,7 @@ public class Bengkel {
     public int approved;
     public int kategori;
     public int idbengkel;
+    public int jumlahbengkel;
 
     public Bengkel(){
 
@@ -71,5 +72,6 @@ public class Bengkel {
     public void setIdbengkel(int idbengkel){
         this.idbengkel=idbengkel;
     }
+
 
 }
