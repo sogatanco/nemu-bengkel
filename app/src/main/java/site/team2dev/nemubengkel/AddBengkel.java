@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -24,6 +25,7 @@ public class AddBengkel extends AppCompatActivity {
     private final int CODE_IMG_GALLERY=1;
     private final String SAMPLE_CROPPED_IMG_NAME="SampleCropImage";
     private Spinner kategori;
+    private String description;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +71,21 @@ public class AddBengkel extends AppCompatActivity {
                 startCrop(imageUri);
                 photo.setImageURI(imageUri);
             }
-        }else if (requestCode== UCrop.REQUEST_CROP && resultCode==RESULT_OK){
+        }
+        if (requestCode== UCrop.REQUEST_CROP && resultCode==RESULT_OK){
             Uri imageUriResultCrop= UCrop.getOutput(data);
             if(imageUriResultCrop!=null){
                 photo.setImageURI(imageUriResultCrop);
             }
         }
+        if (requestCode == 3) {
+            if(resultCode == AddBengkel.RESULT_OK){
+                description=data.getStringExtra("description");
+            }
+
+        }
+
+
 
     }
 
@@ -118,4 +129,11 @@ public class AddBengkel extends AppCompatActivity {
 
         return options;
     }
+
+    public void toDeskripsi(View view) {
+        Intent i = new Intent(this, Descripsi.class);
+        startActivityForResult(i, 3);
+    }
+
+
 }

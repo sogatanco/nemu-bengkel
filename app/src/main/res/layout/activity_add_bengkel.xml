@@ -161,7 +161,8 @@
                 android:fontFamily="sans-serif"
                 android:text="Descripsi"
                 android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                />
 
 
             <ImageView
@@ -173,6 +174,7 @@
                 android:layout_marginTop="14dp"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="30dp"
+                android:onClick="toDeskripsi"
                 />
             <!--enddeskripsi-->
             <View

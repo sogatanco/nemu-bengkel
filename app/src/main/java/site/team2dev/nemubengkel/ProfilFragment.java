@@ -104,16 +104,17 @@ private RecyclerView recyclerView;
                         try {
                             JSONArray array=response.getJSONArray("data");
                             JSONObject data=array.getJSONObject(0);
-                            nama.setText(fungsi.isNull(data.getString("us_nama")).toUpperCase());
-                            gender.setText(fungsi.isNull(data.getString("us_jk")).toUpperCase());
+                            if(isAdded()){
+                                nama.setText(fungsi.isNull(data.getString("us_nama")).toUpperCase());
+                                gender.setText(fungsi.isNull(data.getString("us_jk")).toUpperCase());
                                 Glide
-                                        .with(getView())
+                                        .with(getContext())
                                         .load(getString(R.string.base_url)+"asset/images/"+fungsi.isImgProfilNull(data.getString("us_profil")))
                                         .centerCrop()
                                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         .into(profil);
+                            }
 
-//
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

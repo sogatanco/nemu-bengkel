@@ -1,5 +1,6 @@
 package site.team2dev.nemubengkel;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,50 +9,63 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
-import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, PopupMenu.OnMenuItemClickListener {
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, PopupMenu.OnMenuItemClickListener{
 
     UserSessionManager session;
     String menuAktif;
 
+    final RxPermissions rxPermissions = new RxPermissions(this);
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                .subscribe(granted -> {
+                    if(!granted){
+                        finish();
+                    }else{
+                        setContentView(R.layout.activity_main);
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(this);
 
-        session=new UserSessionManager(getApplicationContext());
+
+                        BottomNavigationView navigation = findViewById(R.id.navigation);
+                        navigation.setOnNavigationItemSelectedListener(this);
+
+                        session = new UserSessionManager(getApplicationContext());
+
 
 //        ambil data dari aktivity sebelumnya
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                menuAktif= null;
-            } else {
-                menuAktif = extras.getString("keys");
-            }
-        } else {
-            menuAktif= (String) savedInstanceState.getSerializable("keys");
-        }
+                        if (savedInstanceState == null) {
+                            Bundle extras = getIntent().getExtras();
+                            if (extras == null) {
+                                menuAktif = null;
+                            } else {
+                                menuAktif = extras.getString("keys");
+                            }
+                        } else {
+                            menuAktif = (String) savedInstanceState.getSerializable("keys");
+                        }
 
 //        menu aktif
-        if(menuAktif!=null){
-            navigation.getMenu().findItem(R.id.navigation_profil).setChecked(true);
-            loadFragment(new ProfilFragment());
-        }else {
-            loadFragment(new HomeFragment());
-        }
+                        if (menuAktif != null) {
+                            navigation.getMenu().findItem(R.id.navigation_profil).setChecked(true);
+                            loadFragment(new ProfilFragment());
+                        } else {
+                            loadFragment(new HomeFragment());
+                        }
 
+                    }
 
-
+                });
 
     }
 
@@ -157,4 +171,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
     }
+
+
 }
