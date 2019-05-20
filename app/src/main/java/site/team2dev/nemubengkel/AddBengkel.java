@@ -25,7 +25,10 @@ public class AddBengkel extends AppCompatActivity {
     private final int CODE_IMG_GALLERY=1;
     private final String SAMPLE_CROPPED_IMG_NAME="SampleCropImage";
     private Spinner kategori;
-    private String description;
+    private String description="";
+    private double latitude=0;
+    private double longitude=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,17 @@ public class AddBengkel extends AppCompatActivity {
 
         }
 
+        if (requestCode == 4) {
+            if(resultCode == AddBengkel.RESULT_OK){
+                latitude=data.getDoubleExtra("lat",0);
+                longitude=data.getDoubleExtra("lon",0);
+
+//               Toast.makeText(this, ""+data.getDoubleExtra("lon", 0), Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+
 
 
     }
@@ -132,8 +146,15 @@ public class AddBengkel extends AppCompatActivity {
 
     public void toDeskripsi(View view) {
         Intent i = new Intent(this, Descripsi.class);
+        i.putExtra("description", description);
         startActivityForResult(i, 3);
     }
 
 
+    public void goToLokasi(View view) {
+        Intent i = new Intent(this, Lokasi.class);
+        i.putExtra("latitude",latitude);
+        i.putExtra("longitude",longitude);
+        startActivityForResult(i, 4);
+    }
 }

@@ -15,6 +15,9 @@ public class Descripsi extends AppCompatActivity {
         setContentView(R.layout.activity_descripsi);
 
         descripsi=(EditText)findViewById(R.id.description);
+
+        Intent intent=getIntent();
+        descripsi.setText(intent.getStringExtra("description"));
     }
     public void simpan(View view) {
         Intent returnIntent = new Intent();

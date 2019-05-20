@@ -3,9 +3,9 @@ package site.team2dev.nemubengkel;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,24 +13,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import static android.content.Context.LOCATION_SERVICE;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 public class HomeFragment extends Fragment implements
-        OnMapReadyCallback, LocationListener {
+        GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     GoogleMap mGoogleMap;
     MapView mapView;
     View mView;
 
-    LocationManager locationManager;
-    Location locat;
+
+    private Location location;
+    private GoogleApiClient googleApiClient;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private LocationRequest locationRequest;
+    private static final long UPDATE_INTERVAL = 1000, FASTEST_INTERVAL = 1000;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,8 +57,109 @@ public class HomeFragment extends Fragment implements
             mapView.getMapAsync(this);
         }
 
-        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        googleApiClient = new GoogleApiClient.Builder(getContext()).
+                addApi(LocationServices.API).
+                addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!checkPlayServices()) {
+            Toast.makeText(getActivity(), "You need to INstall ", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            googleApiClient.disconnect();
+        }
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(getContext());
+
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(getActivity(), resultCode, PLAY_SERVICES_RESOLUTION_REQUEST);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        mGoogleMap = googleMap;
+        mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17.5f));
+
+
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+            //move map camera
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            checkPermission();
+            mGoogleMap.setMyLocationEnabled(true);
+
+        }
+    }
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        checkPermission();
+        location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        onLocationChanged(location);
+        startLocationUpdates();
+
+    }
+
+    private void startLocationUpdates() {
+        locationRequest = new LocationRequest();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(UPDATE_INTERVAL);
+        locationRequest.setFastestInterval(FASTEST_INTERVAL);
+        checkPermission();
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void checkPermission(){
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -60,47 +169,5 @@ public class HomeFragment extends Fragment implements
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locat = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        onLocationChanged(locat);
-
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-//        MapsInitializer.initialize(getContext());
-        mGoogleMap=googleMap;
-//        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-
-        LatLng sydney=new LatLng(-34, 151);
-        mGoogleMap.addMarker(new MarkerOptions().position(sydney).title("marker in sidney"));
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10.2f));
-
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if(location!=null){
-            double latitude=location.getLatitude();
-            double longitude=location.getLongitude();
-            Toast.makeText(getActivity(), ""+latitude, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
     }
 }

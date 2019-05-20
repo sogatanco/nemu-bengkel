@@ -51,6 +51,7 @@ public void logoutUser(){
     editor.commit();
 
     Intent i=new Intent(_context, LoginActivity.class);
+    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     _context.startActivity(i);
 
 }
