@@ -19,12 +19,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Lokasi"
+        <activity android:name=".EditBengkel"
             android:theme="@style/AppTheme.Form">
         </activity>
         <activity
+            android:name=".AvailableTime"
+            android:theme="@style/AppTheme.Form" />
+        <activity
+            android:name=".Layanan"
+            android:theme="@style/AppTheme.Form" />
+        <activity
+            android:name=".Lokasi"
+            android:theme="@style/AppTheme.Form" />
+        <activity
             android:name=".Descripsi"
-            android:theme="@style/AppTheme.Form"></activity>
+            android:theme="@style/AppTheme.Form" />
         <activity
             android:name=".AddBengkel"
             android:theme="@style/AppTheme.Form" />

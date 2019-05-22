@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ededed"
-    tools:context=".AddBengkel">
+    tools:context=".EditBengkel">
     <android.support.v7.widget.Toolbar
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar"
@@ -42,7 +42,7 @@
             android:layout_marginRight="10dp"
             android:fontFamily="sans-serif"
             android:text="Simpan"
-            android:onClick="addBengkel"
+            android:onClick="editBengkel"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp" />
@@ -111,7 +111,7 @@
                 android:layout_marginRight="30dp"
                 android:background="@null"
                 android:ems="10"
-                android:inputType="textPersonName"
+                android:inputType="phone"
                 android:hint="Nomor Telepon"
                 android:textColor="#707070"
                 android:textSize="15sp" />

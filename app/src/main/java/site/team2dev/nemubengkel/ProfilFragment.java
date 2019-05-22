@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -22,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -32,9 +35,11 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ProfilFragment extends Fragment {
+public class ProfilFragment extends Fragment implements MethodCaller{
 
 UserSessionManager session;
 Fungsi fungsi=new Fungsi();
@@ -43,9 +48,10 @@ private RequestQueue requestQueue;
 private TextView nama, gender, jBengkel;
 private ImageView profil;
 private String username;
-private List<Bengkel> bengkels;
-private RecyclerView.Adapter listAdapter;
-private RecyclerView recyclerView;
+public List<Bengkel> bengkels;
+public RecyclerView.Adapter listAdapter;
+public RecyclerView recyclerView;
+
 
 
 
@@ -84,17 +90,16 @@ private RecyclerView recyclerView;
         getDataBengkel();
         RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
 
-        listAdapter=new ListAdapter(getActivity(),bengkels);
+        listAdapter=new ListAdapter(getActivity(),bengkels, this::deleteBengkel);
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(layoutManager);
 
 
-
-
-
     }
 
+
     private void getUserData(){
+
         final String URL=getString(R.string.base_url)+"api/general/user?token=1234567&email="+username;
         JsonObjectRequest getUserData=new JsonObjectRequest(Request.Method.GET, URL, null,
                 new Response.Listener<JSONObject>() {
@@ -188,22 +193,23 @@ private RecyclerView recyclerView;
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray array=response.getJSONArray("data");
-                            if(bengkels!=null){
-                                bengkels.clear();
-                            }
+
                             for (int i=0;i<array.length();i++){
                                 JSONObject data=array.getJSONObject(i);
-                                Bengkel bengkel=new Bengkel();
-                                bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
-                                bengkel.setRating(data.getInt("bk_kategori"));
 
-                                bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+fungsi.isImgBengkelNull(data.getString("bk_foto")));
+                                    Bengkel bengkel=new Bengkel();
+                                    bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
+                                    bengkel.setRating(data.getInt("bk_kategori"));
+
+                                    bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+fungsi.isImgBengkelNull(data.getString("bk_foto")));
 
 
-                                bengkel.setApproved(data.getInt("bk_approved"));
-                                bengkel.setKategori(data.getInt("bk_kategori"));
-                                bengkel.setIdbengkel(data.getInt("bk_id"));
-                                bengkels.add(bengkel);
+                                    bengkel.setApproved(data.getInt("bk_approved"));
+                                    bengkel.setKategori(data.getInt("bk_kategori"));
+                                    bengkel.setIdbengkel(data.getInt("bk_id"));
+                                    bengkels.add(bengkel);
+
+
                             }
                             jBengkel.setText("00"+bengkels.size());
 
@@ -217,61 +223,43 @@ private RecyclerView recyclerView;
             public void onErrorResponse(VolleyError error) {
                 Log.d("eror", error.toString());
             }
-        }){
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                try {
-                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
-                    if (cacheEntry == null) {
-                        cacheEntry = new Cache.Entry();
-                    }
-                    final long cacheHitButRefreshed = 1 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
-                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
-                    long now = System.currentTimeMillis();
-                    final long softExpire = now + cacheHitButRefreshed;
-                    final long ttl = now + cacheExpired;
-                    cacheEntry.data = response.data;
-                    cacheEntry.softTtl = softExpire;
-                    cacheEntry.ttl = ttl;
-                    String headerValue;
-                    headerValue = response.headers.get("Date");
-                    if (headerValue != null) {
-                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
-                    }
-                    headerValue = response.headers.get("Last-Modified");
-                    if (headerValue != null) {
-                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
-                    }
-                    cacheEntry.responseHeaders = response.headers;
-                    final String jsonString = new String(response.data,
-                            HttpHeaderParser.parseCharset(response.headers));
-                    return Response.success(new JSONObject(jsonString), cacheEntry);
+        });
 
-                }catch (UnsupportedEncodingException |JSONException e){
-                    return Response.error(new ParseError(e));
-                }
-            }
 
-            @Override
-            protected void deliverResponse(JSONObject response) {
-                super.deliverResponse(response);
-            }
-
-            @Override
-            public void deliverError(VolleyError error) {
-                super.deliverError(error);
-            }
-
-            @Override
-            protected VolleyError parseNetworkError(VolleyError volleyError) {
-                return super.parseNetworkError(volleyError);
-            }
-        };
         requestQueue.add(getBengkel);
 
     }
 
 
+    @Override
+    public void deleteBengkel(String id, int position) {
+        bengkels.remove(position);
+        recyclerView.removeViewAt(position);
+        listAdapter.notifyItemRemoved(position);
+        listAdapter.notifyItemRangeChanged(position, bengkels.size());
+        listAdapter.notifyDataSetChanged();
 
+        final String URL=getString(R.string.base_url)+"api/bengkel/delete";
+        StringRequest delete=new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(getActivity(), "removed", Toast.LENGTH_LONG).show();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "failed", Toast.LENGTH_LONG).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> hashMap=new HashMap<String, String>();
+                hashMap.put("token", session.getUserDetails().get(UserSessionManager.KEY_TOKEN));
+                hashMap.put("id", id);
+                return hashMap;
+            }
+        };
+        requestQueue.add(delete);
+    }
 
 }

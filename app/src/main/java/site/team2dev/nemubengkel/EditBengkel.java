@@ -22,73 +22,76 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yalantis.ucrop.UCrop;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class AddBengkel extends AppCompatActivity {
-    private EditText nama, nmrtelpon;
-    private TextView tombolSave;
-    private ImageView photo;
+public class EditBengkel extends AppCompatActivity {
     private final int CODE_IMG_GALLERY=1;
     private final String SAMPLE_CROPPED_IMG_NAME="SampleCropImage";
-    private Spinner kategori;
-    private String description="";
-    private double latitude=0;
-    private double longitude=0;
-    private ArrayList<String> layanans;
-    private String timestart="00:00";
-    private String timefinish="00:00";
 
     Fungsi fungsi=new Fungsi();
     private RequestQueue requestQueue;
     UserSessionManager session;
+
+    int id;
+    private String description="";
+    ArrayList layanans=new ArrayList<String>();
+    private String timestart;
+    private String timefinish;
+    private double latitude;
+    private double longitude;
+
+
+    EditText namaBengkel, nomorTelpon;
+    ImageView photo;
+    Spinner kategori;
+    TextView tombolSave;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_bengkel);
+        setContentView(R.layout.activity_edit_bengkel);
 
         session=new UserSessionManager(getApplicationContext());
         requestQueue= Volley.newRequestQueue(this);
 
-        tombolSave=(TextView)findViewById(R.id.toolbar_save);
-        nama=(EditText)findViewById(R.id.et_bengkel);
-        nmrtelpon=(EditText)findViewById(R.id.et_tlpon);
+        Intent intent=getIntent();
+        id=intent.getIntExtra("id",0);
+//        Toast.makeText(this, ""+id, Toast.LENGTH_LONG).show();
 
-        photo=(ImageView)findViewById(R.id.photo);
-        Glide
-                .with(getApplicationContext())
-                .load(getString(R.string.base_url)+"asset/images/bengkel_null.png")
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(photo);
+
+        namaBengkel=(EditText)findViewById(R.id.et_bengkel);
+        nomorTelpon=(EditText)findViewById(R.id.et_tlpon);
+        photo=(ImageView) findViewById(R.id.photo);
+        tombolSave=(TextView)findViewById(R.id.toolbar_save);
 
         kategori=(Spinner)findViewById(R.id.et_kategori);
         String[] arraySpinner = new String[] { "Sepeda Motor", "Mobil"};
-        ArrayAdapter<String> Mkategori=new ArrayAdapter<String>(AddBengkel.this,R.layout.list_spinner, arraySpinner);
+        ArrayAdapter<String> Mkategori=new ArrayAdapter<String>(EditBengkel.this,R.layout.list_spinner, arraySpinner);
         Mkategori.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         kategori.setAdapter(Mkategori);
 
-        layanans=new ArrayList<String>();
-//        layanans.add("tempel ban");
-//        layanans.add("ganti oli");
-//
-//        Log.d("layanan", layanans.toString());
+        getDataBengkel();
+
 
     }
 
@@ -96,13 +99,47 @@ public class AddBengkel extends AppCompatActivity {
         finish();
     }
 
+    public void getDataBengkel(){
+        final String URL=getString(R.string.base_url)+"api/bengkel?token="+session.getUserDetails().get(UserSessionManager.KEY_TOKEN)+"&id="+String.valueOf(id);
+        JsonObjectRequest getbengkel=new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray array=response.getJSONArray("data");
+                    JSONObject data=array.getJSONObject(0);
+                    Log.d("respon",  data.getString("bk_id"));
+                    Glide
+                            .with(getApplicationContext())
+                            .load(getString(R.string.base_url)+"asset/images/"+data.getString("bk_foto"))
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(photo);
+                    namaBengkel.setText(data.getString("bk_namabengkel"));
+                    nomorTelpon.setText(data.getString("bk_telpon"));
+                    kategori.setSelection(data.getInt("bk_kategori")-1, true);
+                    description=data.getString("bk_deskripsi");
+                    layanans=new ArrayList<String>(Arrays.asList(data.getString("bk_layanan").substring(1, data.getString("bk_layanan").length()-1).split(", ")));
+                    String[] time=data.getString("bk_availabletime").split("-");
+                    timestart=time[0].trim();
+                    timefinish=time[1].trim();
+                    latitude=data.getDouble("bk_lat");
+                    longitude=data.getDouble("bk_long");
 
-//    start crop image
-    public void addPhoto(View view) {
-        startActivityForResult(new Intent()
-                .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("image/*"),CODE_IMG_GALLERY);
+                    Log.d("r", time[0]);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                finish();
+            }
+        });
+        requestQueue.add(getbengkel);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -121,39 +158,32 @@ public class AddBengkel extends AppCompatActivity {
             }
         }
         if (requestCode == 3) {
-            if(resultCode == AddBengkel.RESULT_OK){
+            if(resultCode == EditBengkel.RESULT_OK){
                 description=data.getStringExtra("description");
-            }
-
-        }
-
-        if (requestCode == 4) {
-            if(resultCode == AddBengkel.RESULT_OK){
-                latitude=data.getDoubleExtra("lat",0);
-                longitude=data.getDoubleExtra("lon",0);
-
             }
         }
 
         if (requestCode == 5) {
-            if(resultCode == AddBengkel.RESULT_OK){
+            if(resultCode == EditBengkel.RESULT_OK){
                 layanans.clear();
                 layanans=data.getStringArrayListExtra("layanans");
             }
         }
-
         if (requestCode == 6) {
-            if(resultCode == AddBengkel.RESULT_OK){
+            if(resultCode == EditBengkel.RESULT_OK){
                 timestart=data.getStringExtra("timestart");
                 timefinish=data.getStringExtra("timefinish");
 //                Toast.makeText(this, data.getStringExtra("timestart")+data.getStringExtra("timefinish"), Toast.LENGTH_LONG).show();
             }
         }
 
+        if (requestCode == 4) {
+            if(resultCode == EditBengkel.RESULT_OK){
+                latitude=data.getDoubleExtra("lat",0);
+                longitude=data.getDoubleExtra("lon",0);
 
-
-
-
+            }
+        }
     }
 
     private void startCrop(@NonNull Uri uri){
@@ -172,7 +202,7 @@ public class AddBengkel extends AppCompatActivity {
 
         uCrop.withOptions(getCropOptions());
 
-        uCrop.start(AddBengkel.this);
+        uCrop.start(EditBengkel.this);
     }
 
     @SuppressLint("ResourceAsColor")
@@ -197,18 +227,16 @@ public class AddBengkel extends AppCompatActivity {
         return options;
     }
 
+    public void addPhoto(View view) {
+        startActivityForResult(new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("image/*"),CODE_IMG_GALLERY);
+    }
+
     public void toDeskripsi(View view) {
         Intent i = new Intent(this, Descripsi.class);
         i.putExtra("description", description);
         startActivityForResult(i, 3);
-    }
-
-
-    public void goToLokasi(View view) {
-        Intent i = new Intent(this, Lokasi.class);
-        i.putExtra("latitude",latitude);
-        i.putExtra("longitude",longitude);
-        startActivityForResult(i, 4);
     }
 
     public void goToLayanan(View view) {
@@ -224,18 +252,21 @@ public class AddBengkel extends AppCompatActivity {
         startActivityForResult(i, 6);
     }
 
+    public void goToLokasi(View view) {
+        Intent i = new Intent(this, Lokasi.class);
+        i.putExtra("latitude",latitude);
+        i.putExtra("longitude",longitude);
+        startActivityForResult(i, 4);
+    }
 
-    public void addBengkel(View view) {
+
+    public void editBengkel(View view) {
         tombolSave.setTextColor(getResources().getColor(R.color.text1));
         tombolSave.setClickable(false);
         Bitmap bitmap=fungsi.imageView2Bitmap(photo);
 
-//String.valueOf(kategori.getSelectedItemPosition()+1)
-//        layanans.toString()
-
-//        Toast.makeText(this, String.valueOf(latitude), Toast.LENGTH_LONG).show();
         final String URL=getString(R.string.base_url)+"api/bengkel";
-        StringRequest addBengkel=new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+        StringRequest saveEdit=new StringRequest(Request.Method.PUT, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
@@ -253,12 +284,13 @@ public class AddBengkel extends AppCompatActivity {
                 tombolSave.setClickable(true);
                 Toast.makeText(getApplicationContext(),"Failure, check limit or connection", Toast.LENGTH_SHORT).show();
             }
-        }){
+        })
+        {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> hashMap=new HashMap<String, String>();
                 hashMap.put("token", session.getUserDetails().get(UserSessionManager.KEY_TOKEN));
-                hashMap.put("nama", nama.getText().toString());
+                hashMap.put("nama", namaBengkel.getText().toString());
                 hashMap.put("desc", description);
                 hashMap.put("foto", fungsi.imageToSting(bitmap));
                 hashMap.put("kategori", String.valueOf(kategori.getSelectedItemPosition()+1));
@@ -266,10 +298,11 @@ public class AddBengkel extends AppCompatActivity {
                 hashMap.put("lat", String.valueOf(latitude));
                 hashMap.put("layanan", layanans.toString());
                 hashMap.put("time", timestart+"-"+timefinish);
-                hashMap.put("telpon", nmrtelpon.getText().toString());
+                hashMap.put("telpon", nomorTelpon.getText().toString());
+                hashMap.put("id", String.valueOf(id));
                 return hashMap;
             }
         };
-        requestQueue.add(addBengkel);
+        requestQueue.add(saveEdit);
     }
 }

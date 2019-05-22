@@ -109,7 +109,7 @@ public class HomeFragment extends Fragment implements
         mGoogleMap = googleMap;
         mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17.5f));
+        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(16f));
 
 
     }
