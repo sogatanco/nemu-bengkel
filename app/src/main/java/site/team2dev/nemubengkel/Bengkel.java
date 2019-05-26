@@ -3,12 +3,12 @@ package site.team2dev.nemubengkel;
 public class Bengkel {
 
     public String namaBengkel;
-    public int rating;
+    public String rating;
     public String urlImage;
     public int approved;
     public int kategori;
     public int idbengkel;
-    public int jumlahbengkel;
+    public int ulasan;
 
     public Bengkel(){
 
@@ -29,11 +29,11 @@ public class Bengkel {
     }
 
 
-    public int getRating(){
+    public String getRating(){
         return rating;
     }
 
-    public void setRating(int rating){
+    public void setRating(String rating){
         this.rating=rating;
     }
 
@@ -73,5 +73,13 @@ public class Bengkel {
         this.idbengkel=idbengkel;
     }
 
+
+    public int getUlasan(){
+        return ulasan;
+    }
+
+    public void setUlasan(int ulasan){
+        this.ulasan=ulasan;
+    }
 
 }

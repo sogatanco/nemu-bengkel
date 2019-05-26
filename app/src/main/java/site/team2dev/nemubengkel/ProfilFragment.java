@@ -89,11 +89,10 @@ public RecyclerView recyclerView;
         bengkels=new ArrayList<>();
         getDataBengkel();
         RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(getActivity());
-
-        listAdapter=new ListAdapter(getActivity(),bengkels, this::deleteBengkel);
-        recyclerView.setAdapter(listAdapter);
-        recyclerView.setLayoutManager(layoutManager);
-
+        if(isAdded()){listAdapter=new ListAdapter(getActivity(),bengkels, this::deleteBengkel);
+            recyclerView.setAdapter(listAdapter);
+            recyclerView.setLayoutManager(layoutManager);
+        }
 
     }
 
@@ -199,7 +198,7 @@ public RecyclerView recyclerView;
 
                                     Bengkel bengkel=new Bengkel();
                                     bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
-                                    bengkel.setRating(data.getInt("bk_kategori"));
+                                    bengkel.setRating(data.getString("total_rating"));
 
                                     bengkel.setUrlImage(getString(R.string.base_url)+"asset/images/"+fungsi.isImgBengkelNull(data.getString("bk_foto")));
 
@@ -207,6 +206,7 @@ public RecyclerView recyclerView;
                                     bengkel.setApproved(data.getInt("bk_approved"));
                                     bengkel.setKategori(data.getInt("bk_kategori"));
                                     bengkel.setIdbengkel(data.getInt("bk_id"));
+                                    bengkel.setUlasan(data.getInt("j_ulasan"));
                                     bengkels.add(bengkel);
 
 

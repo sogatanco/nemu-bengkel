@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,8 @@ public class ListAdapter extends RecyclerView.Adapter {
         private ImageView mapprove;
         private ImageView mkategori;
         private Bengkel bengkel;
+        private RatingBar ratingBar;
+        private TextView ulasan;
         private int id;
 
         public ListViewHolder(View view){
@@ -64,6 +67,8 @@ public class ListAdapter extends RecyclerView.Adapter {
             mgambar=(ImageView)itemView.findViewById(R.id.main_gambar);
             mapprove=(ImageView)itemView.findViewById(R.id.main_approve);
             mkategori=(ImageView) itemView.findViewById(R.id.main_kategori);
+            ratingBar=(RatingBar)itemView.findViewById(R.id.ratingBar);
+            ulasan=(TextView)itemView.findViewById(R.id.julasan);
             itemView.setOnClickListener(this);
             itemView.setOnCreateContextMenuListener(this);
         }
@@ -94,14 +99,24 @@ public class ListAdapter extends RecyclerView.Adapter {
                 mkategori.setImageResource(R.drawable.ic_directions_car_red_24dp);
             }
 
+            int jrating;
+            if(bengkel.getRating().equals("null")){
+                jrating=0;
+            }else {
+                jrating=Integer.valueOf(bengkel.getRating());
+            }
+            ratingBar.setRating((float)jrating/bengkel.getUlasan());
+
+            ulasan.setText(String.valueOf(bengkel.getUlasan())+" ulasan");
+
 
         }
 
 
         public void onClick(View view){
-            Toast.makeText(context,""+id,Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context,DetailBengkel.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("id", String.valueOf(bengkel.getIdbengkel()));
             intent.putExtra("namaBengkel", bengkel.getNamaBengkel());
             intent.putExtra("urlImage",bengkel.gerUrlImage());
             context.startActivity(intent);

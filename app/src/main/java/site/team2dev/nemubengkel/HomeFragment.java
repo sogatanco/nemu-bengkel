@@ -2,17 +2,32 @@ package site.team2dev.nemubengkel;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -23,8 +38,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 
 public class HomeFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -32,6 +61,10 @@ public class HomeFragment extends Fragment implements
     GoogleMap mGoogleMap;
     MapView mapView;
     View mView;
+    LatLng locUser;
+    private Polyline currentPolyline;
+
+    private RequestQueue requestQueue;
 
 
     private Location location;
@@ -60,6 +93,8 @@ public class HomeFragment extends Fragment implements
         googleApiClient = new GoogleApiClient.Builder(getContext()).
                 addApi(LocationServices.API).
                 addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+
+        requestQueue= Volley.newRequestQueue(getActivity());
     }
 
     @Override
@@ -111,7 +146,7 @@ public class HomeFragment extends Fragment implements
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(16f));
 
-
+        getDataBengkel();
     }
 
 
@@ -119,10 +154,9 @@ public class HomeFragment extends Fragment implements
     public void onLocationChanged(Location location) {
         if (location != null) {
 
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            locUser = new LatLng(location.getLatitude(), location.getLongitude());
 
             //move map camera
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             checkPermission();
             mGoogleMap.setMyLocationEnabled(true);
 
@@ -135,6 +169,7 @@ public class HomeFragment extends Fragment implements
         checkPermission();
         location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         onLocationChanged(location);
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(locUser));
         startLocationUpdates();
 
     }
@@ -170,4 +205,136 @@ public class HomeFragment extends Fragment implements
             return;
         }
     }
+
+    private void getDataBengkel(){
+        final String URL=getString(R.string.base_url)+"api/general/bengkel?token=1234567";
+        JsonObjectRequest databengkel=new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray array=response.getJSONArray("data");
+                    for (int i=0;i<array.length();i++){
+                        JSONObject data=array.getJSONObject(i);
+
+                        BitmapDescriptor icon;
+                        if(data.getInt("bk_kategori")==1){
+                            icon=BitmapDescriptorFactory.fromResource(R.drawable.markermotor);
+                        }else{
+                            icon=BitmapDescriptorFactory.fromResource(R.drawable.markermobil);
+                        }
+
+                        mGoogleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(data.getDouble("bk_lat"),data.getDouble("bk_long")))
+                        .snippet(data.getString("bk_id")+","+data.getString("bk_namabengkel")+","+data.getString("j_ulasan")+","+data.getString("total_rating")+","+data.getString("bk_foto"))
+                        .icon(icon)
+                        );
+
+                        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+
+//                                Toast.makeText(getActivity(), String.valueOf(CalculationByDistance(locUser, marker.getPosition())),Toast.LENGTH_LONG).show();
+                                double jarak=CalculationByDistance(locUser,marker.getPosition());
+                                Bundle args = new Bundle();
+                                args.putString("data", marker.getSnippet());
+                                args.putDouble("jarak", jarak);
+                                BottomSheetDialog bottomSheetDialog=new BottomSheetDialog();
+                                bottomSheetDialog.setArguments(args);
+                                bottomSheetDialog.show(getFragmentManager(), "tes");
+                                return false;
+                            }
+                        });
+
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 1 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+        requestQueue.add(databengkel);
+    }
+
+
+    public double CalculationByDistance(LatLng StartP, LatLng EndP) {
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = StartP.latitude;
+        double lat2 = EndP.latitude;
+        double lon1 = StartP.longitude;
+        double lon2 = EndP.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        double km = valueResult / 1;
+        DecimalFormat newFormat = new DecimalFormat("####");
+        int kmInDec = Integer.valueOf(newFormat.format(km));
+        double meter = valueResult * 1000;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+        Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
+                + " Meter   " + meterInDec);
+
+        return meter;
+    }
+
+
 }

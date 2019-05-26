@@ -1,4 +1,5 @@
 <resources>
+    <string name="google_key">AIzaSyALisurDb7RVJUKs2Es67Tw2jQL55LoClw</string>
     <string name="app_name">Nemu Bengkel</string>
     <string name="title_home">Home</string>
     <string name="title_mobil">Dashboard</string>
