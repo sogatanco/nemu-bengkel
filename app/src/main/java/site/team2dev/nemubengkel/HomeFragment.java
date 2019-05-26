@@ -2,20 +2,16 @@ package site.team2dev.nemubengkel;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Cache;
@@ -41,12 +37,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,7 +55,7 @@ public class HomeFragment extends Fragment implements
     MapView mapView;
     View mView;
     LatLng locUser;
-    private Polyline currentPolyline;
+    String link;
 
     private RequestQueue requestQueue;
 
@@ -82,6 +75,10 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (getArguments() != null) {
+         link=getArguments().getString("params");
+        }
 
         mapView = (MapView) mView.findViewById(R.id.peta);
         if (mapView != null) {
@@ -207,7 +204,7 @@ public class HomeFragment extends Fragment implements
     }
 
     private void getDataBengkel(){
-        final String URL=getString(R.string.base_url)+"api/general/bengkel?token=1234567";
+        final String URL=getString(R.string.base_url)+"api/general/bengkel?token=1234567"+link;
         JsonObjectRequest databengkel=new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {

@@ -60,7 +60,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                             navigation.getMenu().findItem(R.id.navigation_profil).setChecked(true);
                             loadFragment(new ProfilFragment());
                         } else {
-                            loadFragment(new HomeFragment());
+                            Bundle bundle = new Bundle();
+                            bundle.putString("params", "");
+                            Fragment fragment=new HomeFragment();
+                            fragment.setArguments(bundle);
+                            loadFragment(fragment);
                         }
 
                     }
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
 
-    private boolean loadFragment(Fragment fragment){
+    private boolean loadFragment(Fragment fragment ){
         if(fragment != null){
 
             getSupportFragmentManager()
@@ -87,20 +91,26 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-
+        Bundle bundle = new Bundle();
 
         Fragment fragment=null;
         switch (menuItem.getItemId()){
             case R.id.navigation_home:
+                bundle.putString("params", "");
                 fragment=new HomeFragment();
+                fragment.setArguments(bundle);
                 break;
 
             case R.id.navigation_mobil:
-                fragment=new MobilFragment();
+                bundle.putString("params", "&kategori=2");
+                fragment=new HomeFragment();
+                fragment.setArguments(bundle);
                 break;
 
             case R.id.navigation_motor:
-                fragment=new MotorFragment();
+                bundle.putString("params", "&kategori=1");
+                fragment=new HomeFragment();
+                fragment.setArguments(bundle);
                 break;
 
             case R.id.navigation_profil:
