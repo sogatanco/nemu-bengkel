@@ -1,8 +1,12 @@
 package site.team2dev.nemubengkel;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -60,7 +64,13 @@ public class DetailBengkel extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-               Toast.makeText(getApplicationContext(),"telpon", Toast.LENGTH_LONG).show();
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:082285658594"));
+                if (ActivityCompat.checkSelfPermission(DetailBengkel.this,
+                        Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                startActivity(callIntent);
             }
         });
 

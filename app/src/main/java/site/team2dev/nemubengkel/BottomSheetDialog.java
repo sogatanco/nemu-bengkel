@@ -28,6 +28,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     ImageView gambar, direct;
     LinearLayout clickarea;
     String[] data;
+    Bundle mArgs;
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v=inflater.inflate(R.layout.bottom_detail_map, container, false);
         return v;
@@ -38,7 +39,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Bundle mArgs = getArguments();
+        mArgs = getArguments();
         data = mArgs.getString("data").split(",");
         double s_jarak=mArgs.getDouble("jarak");
 
@@ -79,6 +80,17 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
                 intent.putExtra("id",data[0]);
                 intent.putExtra("namaBengkel",data[1]);
                 intent.putExtra("urlImage",getString(R.string.base_url)+"asset/images/"+data[4]);
+                getActivity().startActivity(intent);
+            }
+        });
+
+        direct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),Routes.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("lat",mArgs.getDouble("lat"));
+                intent.putExtra("long",mArgs.getDouble("long"));
                 getActivity().startActivity(intent);
             }
         });

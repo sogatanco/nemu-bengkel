@@ -235,6 +235,8 @@ public class HomeFragment extends Fragment implements
                                 Bundle args = new Bundle();
                                 args.putString("data", marker.getSnippet());
                                 args.putDouble("jarak", jarak);
+                                args.putDouble("lat", marker.getPosition().latitude);
+                                args.putDouble("long", marker.getPosition().longitude);
                                 BottomSheetDialog bottomSheetDialog=new BottomSheetDialog();
                                 bottomSheetDialog.setArguments(args);
                                 bottomSheetDialog.show(getFragmentManager(), "tes");
