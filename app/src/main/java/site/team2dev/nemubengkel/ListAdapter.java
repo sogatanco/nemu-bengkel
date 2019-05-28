@@ -99,11 +99,11 @@ public class ListAdapter extends RecyclerView.Adapter {
                 mkategori.setImageResource(R.drawable.ic_directions_car_red_24dp);
             }
 
-            int jrating;
+            float jrating;
             if(bengkel.getRating().equals("null")){
                 jrating=0;
             }else {
-                jrating=Integer.valueOf(bengkel.getRating());
+                jrating=Float.valueOf(bengkel.getRating());
             }
             ratingBar.setRating((float)jrating/bengkel.getUlasan());
 

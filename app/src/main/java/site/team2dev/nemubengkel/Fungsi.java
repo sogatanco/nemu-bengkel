@@ -17,7 +17,7 @@ import java.io.ByteArrayOutputStream;
 import static android.provider.Settings.System.getString;
 
 public class Fungsi {
-    private Boolean isEmpty(EditText et){
+    public Boolean isEmpty(EditText et){
         if(et.getText().toString().trim().length()>0)
             return false;
 

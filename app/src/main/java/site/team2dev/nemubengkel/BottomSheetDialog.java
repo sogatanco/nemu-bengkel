@@ -43,11 +43,11 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         data = mArgs.getString("data").split(",");
         double s_jarak=mArgs.getDouble("jarak");
 
-        int jrating;
+        float jrating;
         if(data[3].equals("null")){
             jrating=0;
         }else{
-            jrating=Integer.parseInt(data[3]);
+            jrating=Float.valueOf(data[3]);
         }
 
         clickarea=(LinearLayout)view.findViewById(R.id.clickarea);
