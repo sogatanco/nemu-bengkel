@@ -32,6 +32,10 @@ public class ListAdapter extends RecyclerView.Adapter {
         this.methodCaller=methodCaller;
     }
 
+    public ListAdapter(Context context, List<Bengkel> list) {
+        this.context=context;
+        this.list=list;
+    }
 
 
     @NonNull
