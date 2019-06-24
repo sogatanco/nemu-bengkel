@@ -81,6 +81,16 @@
                 android:layout_toRightOf="@id/main_gambar"
                 android:textSize="10sp" />
 
+            <TextView
+                android:id="@+id/jarak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/julasan"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/main_gambar"
+                android:textSize="10sp"
+                />
+
 
 
         </RelativeLayout>

@@ -9,6 +9,7 @@ public class Bengkel {
     public int kategori;
     public int idbengkel;
     public int ulasan;
+    public String jarak;
 
     public Bengkel(){
 
@@ -80,6 +81,14 @@ public class Bengkel {
 
     public void setUlasan(int ulasan){
         this.ulasan=ulasan;
+    }
+
+
+    public String getJarak(){
+        return jarak;
+    }
+    public void setJarak(String jarak){
+        this.jarak=jarak;
     }
 
 }
