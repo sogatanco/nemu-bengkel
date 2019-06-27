@@ -38,6 +38,7 @@ public class BengkelAdapter extends RecyclerView.Adapter<BengkelAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull BengkelAdapter.ViewHolder viewHolder, int i) {
+
         bengkel=list.get(i);
         viewHolder.id=bengkel.getIdbengkel();
         viewHolder.mtextview.setText(bengkel.getNamaBengkel());

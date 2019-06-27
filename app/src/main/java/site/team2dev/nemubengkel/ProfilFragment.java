@@ -192,7 +192,7 @@ public RecyclerView recyclerView;
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray array=response.getJSONArray("data");
-
+                            jBengkel.setText(String.valueOf(array.length()));
                             for (int i=0;i<array.length();i++){
                                 JSONObject data=array.getJSONObject(i);
 
@@ -209,9 +209,8 @@ public RecyclerView recyclerView;
                                     bengkel.setUlasan(data.getInt("j_ulasan"));
                                     bengkels.add(bengkel);
 
-
                             }
-                            jBengkel.setText("00"+bengkels.size());
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();

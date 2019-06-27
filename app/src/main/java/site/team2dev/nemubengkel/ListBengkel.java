@@ -96,6 +96,7 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
         if (!checkPlayServices()) {
             Toast.makeText(this, "You need to INstall ", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
@@ -130,12 +131,14 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
         listAdapter = new BengkelAdapter(bengkels, this);
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(layoutManager);
+
         final String URL = getString(R.string.base_url) + "/api/general/bengkel?token=1234567";
         JsonObjectRequest getBengkel = new JsonObjectRequest(Request.Method.GET, URL, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            bengkels.clear();
                             JSONArray array = response.getJSONArray("data");
 //                            Log.d("rs",array.toString());
 
@@ -145,12 +148,10 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
                                 try {
                                     rr.add(array.getJSONObject(i));
                                 } catch (JSONException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                             }
 
-                            Log.d("2", rr.toString());
 //                            bubble sort algorithm
                             int n=rr.size();
                             for(int a=0; a < n; a++){
@@ -160,7 +161,6 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
                                     }
                                 }
                             }
-                            Log.d("2", rr.toString());
 // add data to adapter
 
                             for(int m=0; m< rr.size(); m++){
