@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/rating"
+        android:title="sort by rating"/>
+
+    <item
+        android:id="@+id/jarak"
+        android:title="sort by jarak"/>
+
+    <item
+        android:id="@+id/mobil"
+        android:title="Bengkel Mobil"/>
+    <item
+        android:id="@+id/motor"
+        android:title="Bengkel Motor"/>
+</menu>

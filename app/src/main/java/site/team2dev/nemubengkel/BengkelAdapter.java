@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -41,6 +42,8 @@ public class BengkelAdapter extends RecyclerView.Adapter<BengkelAdapter.ViewHold
 
         bengkel=list.get(i);
         viewHolder.id=bengkel.getIdbengkel();
+        viewHolder.nama=bengkel.getNamaBengkel();
+        viewHolder.gambar=bengkel.gerUrlImage();
         viewHolder.mtextview.setText(bengkel.getNamaBengkel());
         Glide
                 .with(context)
@@ -85,6 +88,8 @@ public class BengkelAdapter extends RecyclerView.Adapter<BengkelAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private int id;
+        private String nama;
+        private String gambar;
         private TextView mtextview;
         private ImageView mgambar;
         private ImageView mapprove;
@@ -112,10 +117,11 @@ public class BengkelAdapter extends RecyclerView.Adapter<BengkelAdapter.ViewHold
         public void onClick(View v) {
             Intent intent = new Intent(context,DetailBengkel.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("id", String.valueOf(bengkel.getIdbengkel()));
-            intent.putExtra("namaBengkel", bengkel.getNamaBengkel());
-            intent.putExtra("urlImage",bengkel.gerUrlImage());
+            intent.putExtra("id", String.valueOf(id));
+            intent.putExtra("namaBengkel", nama);
+            intent.putExtra("urlImage",gambar);
             context.startActivity(intent);
+
         }
     }
 }

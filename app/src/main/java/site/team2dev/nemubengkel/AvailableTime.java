@@ -42,7 +42,7 @@ public class AvailableTime extends AppCompatActivity {
                     public void onTimeSet(TimePicker tp, int sHour, int sMinute) {
                         eText.setText(String.format("%02d:%02d", sHour, sMinute));
                     }
-                }, hour, minutes, true);
+                }, hour, minutes, false);
         picker.show();
     }
 

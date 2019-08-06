@@ -13,6 +13,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -78,8 +81,42 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
                 addApi(LocationServices.API).
                 addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
 
+        recyclerView = (RecyclerView) findViewById(R.id.list_dafar_bengkel);
+        bengkels = new ArrayList<>();
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        listAdapter = new BengkelAdapter(bengkels, this);
+        recyclerView.setAdapter(listAdapter);
+        recyclerView.setLayoutManager(layoutManager);
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater=getMenuInflater();
+        menuInflater.inflate(R.menu.list_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.rating:
+                Toast.makeText(this, "rating", Toast.LENGTH_LONG).show();
+                return true;
+
+            case R.id.jarak:
+                getDataBengkel();
+                return true;
+
+            case R.id.mobil:
+                getBengkelMobil();
+                return true;
+
+            case R.id.motor:
+                getBengkelMotor();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -125,12 +162,7 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
     }
 
     private void getDataBengkel() {
-        recyclerView = (RecyclerView) findViewById(R.id.list_dafar_bengkel);
-        bengkels = new ArrayList<>();
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        listAdapter = new BengkelAdapter(bengkels, this);
-        recyclerView.setAdapter(listAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+
 
         final String URL = getString(R.string.base_url) + "/api/general/bengkel?token=1234567";
         JsonObjectRequest getBengkel = new JsonObjectRequest(Request.Method.GET, URL, null,
@@ -245,6 +277,242 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
 
         requestQueue.add(getBengkel);
     }
+
+    private void getBengkelMotor() {
+
+        final String URL = getString(R.string.base_url) + "/api/general/bengkel?token=1234567&kategori=1";
+        JsonObjectRequest getBengkel = new JsonObjectRequest(Request.Method.GET, URL, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            bengkels.clear();
+                            JSONArray array = response.getJSONArray("data");
+//                            Log.d("rs",array.toString());
+
+
+                            ArrayList<JSONObject> rr= new ArrayList<JSONObject>();
+                            for (int i = 0; i < array.length(); i++) {
+                                try {
+                                    rr.add(array.getJSONObject(i));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+//                            bubble sort algorithm
+                            int n=rr.size();
+                            for(int a=0; a < n; a++){
+                                for(int b=1; b< (n -a); b++){
+                                    if(CalculationByDistance(loc, new LatLng(rr.get(b-1).getDouble("bk_lat"),rr.get(b-1).getDouble("bk_long"))) >CalculationByDistance(loc, new LatLng(rr.get(b).getDouble("bk_lat"),rr.get(b).getDouble("bk_long")))){
+                                        Collections.swap(rr,b-1,b);
+                                    }
+                                }
+                            }
+// add data to adapter
+
+                            for(int m=0; m< rr.size(); m++){
+                                JSONObject data=rr.get(m);
+                                LatLng lokasi=new LatLng(data.getDouble("bk_lat"),data.getDouble("bk_long"));
+                                double jarak=CalculationByDistance(loc, lokasi);
+                                Bengkel bengkel = new Bengkel();
+                                bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
+                                bengkel.setRating(data.getString("total_rating"));
+                                bengkel.setUrlImage(getString(R.string.base_url) + "asset/images/" + fungsi.isImgBengkelNull(data.getString("bk_foto")));
+                                bengkel.setApproved(data.getInt("bk_approved"));
+                                bengkel.setKategori(data.getInt("bk_kategori"));
+                                bengkel.setIdbengkel(data.getInt("bk_id"));
+                                bengkel.setUlasan(data.getInt("j_ulasan"));
+                                bengkel.setJarak("Jarak : "+new DecimalFormat("##.##").format(jarak)+" KM");
+                                bengkels.add(bengkel);
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("eror", error.toString());
+            }
+        }){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 1 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+
+        requestQueue.add(getBengkel);
+    }
+
+    private void getBengkelMobil() {
+
+        final String URL = getString(R.string.base_url) + "/api/general/bengkel?token=1234567&kategori=2";
+        JsonObjectRequest getBengkel = new JsonObjectRequest(Request.Method.GET, URL, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            bengkels.clear();
+                            JSONArray array = response.getJSONArray("data");
+//                            Log.d("rs",array.toString());
+
+
+                            ArrayList<JSONObject> rr= new ArrayList<JSONObject>();
+                            for (int i = 0; i < array.length(); i++) {
+                                try {
+                                    rr.add(array.getJSONObject(i));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+//                            bubble sort algorithm
+                            int n=rr.size();
+                            for(int a=0; a < n; a++){
+                                for(int b=1; b< (n -a); b++){
+                                    if(CalculationByDistance(loc, new LatLng(rr.get(b-1).getDouble("bk_lat"),rr.get(b-1).getDouble("bk_long"))) >CalculationByDistance(loc, new LatLng(rr.get(b).getDouble("bk_lat"),rr.get(b).getDouble("bk_long")))){
+                                        Collections.swap(rr,b-1,b);
+                                    }
+                                }
+                            }
+// add data to adapter
+
+                            for(int m=0; m< rr.size(); m++){
+                                JSONObject data=rr.get(m);
+                                LatLng lokasi=new LatLng(data.getDouble("bk_lat"),data.getDouble("bk_long"));
+                                double jarak=CalculationByDistance(loc, lokasi);
+                                Bengkel bengkel = new Bengkel();
+                                bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
+                                bengkel.setRating(data.getString("total_rating"));
+                                bengkel.setUrlImage(getString(R.string.base_url) + "asset/images/" + fungsi.isImgBengkelNull(data.getString("bk_foto")));
+                                bengkel.setApproved(data.getInt("bk_approved"));
+                                bengkel.setKategori(data.getInt("bk_kategori"));
+                                bengkel.setIdbengkel(data.getInt("bk_id"));
+                                bengkel.setUlasan(data.getInt("j_ulasan"));
+                                bengkel.setJarak("Jarak : "+new DecimalFormat("##.##").format(jarak)+" KM");
+                                bengkels.add(bengkel);
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("eror", error.toString());
+            }
+        }){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 1 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+
+        requestQueue.add(getBengkel);
+    }
+
+    
+
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

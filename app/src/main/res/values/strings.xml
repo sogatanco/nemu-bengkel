@@ -18,7 +18,7 @@
         completions."
     </string>
     <!--base url api-->
-    <string name="base_url">http://nebeng.foways.com/</string>
+    <string name="base_url">http://project.sogata.co/nebeng/</string>
     <string name="title_activity_detail_bengkel">DetailBengkel</string>
 
     <string name="action_settings">Settings</string>
