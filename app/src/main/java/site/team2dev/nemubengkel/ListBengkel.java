@@ -101,7 +101,7 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.rating:
-                Toast.makeText(this, "rating", Toast.LENGTH_LONG).show();
+                getBengkelbyRating();
                 return true;
 
             case R.id.jarak:
@@ -510,7 +510,136 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
         requestQueue.add(getBengkel);
     }
 
-    
+    private void getBengkelbyRating() {
+
+
+        final String URL = getString(R.string.base_url) + "/api/general/bengkel?token=1234567";
+        JsonObjectRequest getBengkel = new JsonObjectRequest(Request.Method.GET, URL, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            bengkels.clear();
+                            JSONArray array = response.getJSONArray("data");
+//                            Log.d("rs",array.toString());
+
+
+                            ArrayList<JSONObject> rr= new ArrayList<JSONObject>();
+                            for (int i = 0; i < array.length(); i++) {
+                                try {
+                                    rr.add(array.getJSONObject(i));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+//                            bubble sort algorithm
+                            int n=rr.size();
+                            for(int a=0; a < n; a++){
+                                for(int b=1; b< (n -a); b++){
+                                    float jrating;
+                                    if( rr.get(b-1).getString("total_rating").equals("null")){
+                                        jrating=0;
+                                    }else{
+                                        jrating=Float.valueOf(rr.get(b-1).getString("total_rating")) / rr.get(b-1).getInt("j_ulasan");
+                                    }
+
+                                    float jrating2;
+                                    if( rr.get(b).getString("total_rating").equals("null")){
+                                        jrating2=0;
+                                    }else{
+                                        jrating2=Float.valueOf(rr.get(b).getString("total_rating")) / rr.get(b).getInt("j_ulasan");
+                                    }
+                                    if(jrating<jrating2){
+                                        Collections.swap(rr,b-1,b);
+                                    }
+
+                                }
+                            }
+// add data to adapter
+
+                            for(int m=0; m< rr.size(); m++){
+                                JSONObject data=rr.get(m);
+                                LatLng lokasi=new LatLng(data.getDouble("bk_lat"),data.getDouble("bk_long"));
+                                double jarak=CalculationByDistance(loc, lokasi);
+                                Bengkel bengkel = new Bengkel();
+                                bengkel.setNamaBengkel(data.getString("bk_namabengkel"));
+                                bengkel.setRating(data.getString("total_rating"));
+                                bengkel.setUrlImage(getString(R.string.base_url) + "asset/images/" + fungsi.isImgBengkelNull(data.getString("bk_foto")));
+                                bengkel.setApproved(data.getInt("bk_approved"));
+                                bengkel.setKategori(data.getInt("bk_kategori"));
+                                bengkel.setIdbengkel(data.getInt("bk_id"));
+                                bengkel.setUlasan(data.getInt("j_ulasan"));
+                                bengkel.setJarak("Jarak : "+new DecimalFormat("##.##").format(jarak)+" KM");
+                                bengkels.add(bengkel);
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("eror", error.toString());
+            }
+        }){
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 1 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new JSONObject(jsonString), cacheEntry);
+
+                }catch (UnsupportedEncodingException |JSONException e){
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(JSONObject response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+
+        requestQueue.add(getBengkel);
+    }
 
 
 
@@ -549,20 +678,20 @@ public class ListBengkel extends AppCompatActivity implements LocationListener, 
     }
 
     public static double CalculationByDistance(LatLng StartP, LatLng EndP) {
-        int Radius = 6371;// radius of earth in Km
-        double lat1 = StartP.latitude;
-        double lat2 = EndP.latitude;
-        double lon1 = StartP.longitude;
-        double lon2 = EndP.longitude;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
-                * Math.sin(dLon / 2);
-        double c = 2 * Math.asin(Math.sqrt(a));
-        double valueResult = Radius * c;
-        double km = valueResult / 1;
+            int Radius = 6371;// radius of earth in Km
+            double lat1 = StartP.latitude;
+            double lat2 = EndP.latitude;
+            double lon1 = StartP.longitude;
+            double lon2 = EndP.longitude;
+            double dLat = Math.toRadians(lat2 - lat1);
+            double dLon = Math.toRadians(lon2 - lon1);
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                    + Math.cos(Math.toRadians(lat1))
+                    * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                    * Math.sin(dLon / 2);
+            double c = 2 * Math.asin(Math.sqrt(a));
+            double valueResult = Radius * c;
+            double km = valueResult / 1;
         DecimalFormat newFormat = new DecimalFormat("####");
         int kmInDec = Integer.valueOf(newFormat.format(km));
         double meter = valueResult * 1000;
